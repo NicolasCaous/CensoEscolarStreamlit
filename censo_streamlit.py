@@ -1,4 +1,5 @@
 import streamlit as st
+import pydeck as pdk
 
 from censo_loader import load_data_pd, load_helpers
 
@@ -39,3 +40,38 @@ if len(columns) == 0:
     st.dataframe(df)    
 else:
     st.dataframe(df[columns])
+    
+df = df[["NO_ENTIDADE", "lat", "lng", "DS_ENDERECO", "NU_ENDERECO", "NO_MUNICIPIO", "SG_UF", "CO_CEP", "NU_DDD", "NU_TELEFONE"]]
+df = df[(df["lat"] != 0) & (df["lng"] != 0)]
+
+if len(df.index) > 0:
+    st.markdown("O mapa está disponível apenas para a cidade de São Paulo pois é o único município cujo dado foi geolocalizado. Contatar Nicolas para geolocalizar outros municipios.")
+    if st.checkbox("Mostrar mapa", False):
+        st.pydeck_chart(pdk.Deck(
+            map_style='mapbox://styles/mapbox/light-v9',
+            initial_view_state=pdk.ViewState(
+                latitude=-23.55,
+                longitude=-46.63,
+                zoom=9,
+                pitch=50,
+            ),
+            tooltip={
+                "html": "<b>NO_ENTIDADE:</b> {NO_ENTIDADE}<br/> <b>Endereço:</b> {DS_ENDERECO} {NU_ENDERECO}, {NO_MUNICIPIO} - {SG_UF}<br/> <b>CO_CEP:</b> {CO_CEP}<br/> <b>Telefone:</b> ({NU_DDD}) {NU_TELEFONE}",
+                "style": {"background": "grey", "color": "white", "font-family": '"Helvetica Neue", Arial', "z-index": "10000"}
+            },
+            layers=[
+                pdk.Layer(
+                    'ColumnLayer',
+                    data=df,
+                    pickable=True,
+                    auto_highlight=True,
+                    elevation_scale=1,
+                    elevation_range=[0, 3000],
+                    extruded=True,                 
+                    coverage=1,
+                    get_position='[lng, lat]',
+                    get_color='[255, 0, 0, 50]',
+                    radius=50
+                ),
+            ],
+        ))
