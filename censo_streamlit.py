@@ -36,6 +36,12 @@ with st.expander("Parâmetros", expanded=False):
 
 columns = st.multiselect("Colunas", sorted(list(df)))
 
+row_count = len(df.index)
+st.markdown("---\nSelecione o mínimo de linhas possível. Isso faz o programa funcionar mais rápido.")
+st.text("Número total de linhas: " + str(row_count))
+limit = st.number_input("Limite de linhas", 0, row_count, row_count if row_count < 100 else 100)
+df = df.head(limit)
+
 if len(columns) == 0:
     st.dataframe(df)    
 else:
