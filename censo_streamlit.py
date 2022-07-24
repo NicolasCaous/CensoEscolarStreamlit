@@ -1,3 +1,4 @@
+import io
 import streamlit as st
 import pydeck as pdk
 
@@ -46,6 +47,10 @@ if len(columns) == 0:
     st.dataframe(df)    
 else:
     st.dataframe(df[columns])
+    
+file_to_download = io.BytesIO()
+df.to_csv(file_to_download, sep=";")
+st.download_button("Download resultado", file_to_download, file_name="censo_escolar_selecao")
     
 df = df[["NO_ENTIDADE", "lat", "lng", "DS_ENDERECO", "NU_ENDERECO", "NO_MUNICIPIO", "SG_UF", "CO_CEP", "NU_DDD", "NU_TELEFONE"]]
 df = df[(df["lat"] != 0) & (df["lng"] != 0)]
