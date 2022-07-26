@@ -7,6 +7,9 @@ from censo_loader import load_data_pd, load_helpers
 df = load_data_pd()
 helpers = load_helpers()
 
+with open("./microdados_censo_escolar_2021/2021/Anexos/ANEXO I - Dicionário de Dados/dicionário_dados_educação_básica.xlsx", "rb") as file:
+    st.download_button("Download dicionário", file, file_name="dicionário_dados_educação_básica.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
 filters = st.multiselect("Filtros", list(df))
 
 with st.expander("Parâmetros", expanded=False):
@@ -43,14 +46,16 @@ st.text("Número total de linhas: " + str(row_count))
 limit = st.number_input("Limite de linhas", 0, row_count, row_count if row_count < 100 else 100)
 df = df.head(limit)
 
-if len(columns) == 0:
-    st.dataframe(df)    
-else:
-    st.dataframe(df[columns])
-    
 file_to_download = io.BytesIO()
-df.to_csv(file_to_download, sep=";")
-st.download_button("Download resultado", file_to_download, file_name="censo_escolar_selecao")
+
+if len(columns) == 0:
+    df.to_csv(file_to_download, sep=";")
+    st.dataframe(df)
+else:
+    df[columns].to_csv(file_to_download, sep=";")
+    st.dataframe(df[columns])
+
+st.download_button("Download resultado", file_to_download, file_name="censo_escolar_selecao.csv", mime='text/csv')
     
 df = df[["NO_ENTIDADE", "lat", "lng", "DS_ENDERECO", "NU_ENDERECO", "NO_MUNICIPIO", "SG_UF", "CO_CEP", "NU_DDD", "NU_TELEFONE"]]
 df = df[(df["lat"] != 0) & (df["lng"] != 0)]
