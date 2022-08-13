@@ -1,4 +1,6 @@
 import pandas as pd
+import requests
+import io
 import streamlit as st
 
 from diskcache import Cache
@@ -15,7 +17,11 @@ def load_data():
 
 @st.cache
 def load_data_pd():
-    df = pd.read_csv("./microdados_censo_escolar_2021/2021/dados/microdados_ed_basica_2021.csv",  sep=';', encoding="latin-1")
+    with open("./microdados_censo_escolar_2021/2021/dados/microdados_ed_basica_2021.txt", "r", encoding="utf-8") as f:
+        link = f.readline()
+        print("link é " + link)
+
+    df = pd.read_csv(io.BytesIO(requests.get(link).content),  sep=';', encoding="latin-1")
     df['CO_ORGAO_REGIONAL'] = df['CO_ORGAO_REGIONAL'].astype(str)
     df['NU_ENDERECO'] = df['NU_ENDERECO'].astype(str)
     df['NU_DDD'] = df['NU_DDD'].astype('Int64').astype('str')
